@@ -1,23 +1,24 @@
 import cv2
 import numpy as np
 
-# Iniciar la captura de video (puede ser también la carga de una imagen)
-cap = cv2.VideoCapture(1)  # Ajusta el índice o la fuente según corresponda
+# Iniciar la captura de video (ajusta el índice o la fuente según corresponda)
+cap = cv2.VideoCapture(1)  # Cambia a 0 si es necesario
+
+# Valor inicial del umbral
+thresh_value = 30
 
 while True:
     ret, frame = cap.read()
     if not ret:
         break
 
-    # Asumimos que 'frame' es un primer plano del ojo
     # Convertir a escala de grises
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     
     # Aplicar un desenfoque para reducir el ruido
     blurred = cv2.GaussianBlur(gray, (7, 7), 0)
     
-    # Umbralización inversa para resaltar la pupila (ajusta el valor de 'thresh_value' según tus condiciones)
-    thresh_value = 30  # Valor de ejemplo; puede variar según iluminación y cámara
+    # Umbralización inversa para resaltar la pupila
     _, thresh = cv2.threshold(blurred, thresh_value, 255, cv2.THRESH_BINARY_INV)
     
     # Operaciones morfológicas para mejorar la imagen binaria (opcional)
@@ -38,10 +39,23 @@ while True:
             # Dibujar el centro de la pupila en la imagen original
             cv2.circle(frame, (cx, cy), 4, (0, 0, 255), -1)
     
-    # Mostrar las imágenes de depuración
+    # Mostrar el valor actual del umbral en la imagen original
+    cv2.putText(frame, f"Threshold: {thresh_value}", (10, 30), 
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    
+    # Mostrar las imágenes
     cv2.imshow("Imagen Original", frame)
     cv2.imshow("Umbralizado", thresh)
     
-    # Salir al presionar 'q'
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    # Capturar la tecla presionada
+    key = cv2.waitKey(1) & 0xFF
+    if key == ord('q'):
         break
+    elif key == ord('w'):  # Aumentar umbral
+        thresh_value = min(255, thresh_value + 1)
+    elif key == ord('s'):  # Disminuir umbral
+        thresh_value = max(0, thresh_value - 1)
+
+cap.release()
+cv2.destroyAllWindows()
+
