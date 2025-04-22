@@ -4,8 +4,19 @@ import time
 from training.model import apply_polynomial_2d
 from common.cameras import WorldCamera, PupilDetector
 from ultralytics import YOLO
+import requests
 
+# Dirección IP de la ESP32 
+esp_ip = "192.168.50.106"  
 model = YOLO("best_5.pt")
+
+
+def send_signal(signal: str):
+    try:
+        resp = requests.get(f"http://{esp_ip}/?signal={signal}", timeout=1)
+        print(f"[ESP32] Señal {signal} enviada, respuesta: {resp.text}")
+    except Exception as e:
+        print(f"[ESP32] Error enviando señal {signal}: {e}")
 
 def real_time_mapping(shared_pupil_data):
     # Cargar el modelo entrenado
@@ -81,11 +92,20 @@ def real_time_mapping(shared_pupil_data):
                 objeto_actual = objeto_enfocado
                 tiempo_inicio = tiempo_actual
             else:
-                # Se mantiene en el mismo objeto, verificar el tiempo acumulado
+                # Si supera el tiempo de fijación, dibuja y envía señal
                 if tiempo_actual - tiempo_inicio >= TIEMPO_FIJACION:
-                    cv2.putText(frame, f"Fijacion detectada en objeto {objeto_actual['name']}",
-                                (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
-                    # Aquí podrías agregar alguna acción adicional tras la fijación
+                    texto = f"Fijación en {objeto_actual['name']}"
+                    cv2.putText(frame, texto, (50, 50),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                    mapping = {
+                        'heater': '0',
+                        'lamp': '1',
+                        'television': '2',
+                        'mechanical fan' : '3',
+                        'speaker' : '4'
+                    }
+                    signal = mapping.get(objeto_actual['name'], '0')
+                    send_signal(signal)
         else:
             # Si la mirada no se encuentra sobre ningún objeto, reiniciamos las variables
             objeto_actual = None
