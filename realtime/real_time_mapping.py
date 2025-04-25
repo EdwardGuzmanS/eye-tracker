@@ -8,7 +8,7 @@ import requests
 
 # Dirección IP de la ESP32 
 esp_ip = "192.168.50.106"  
-model = YOLO("best_5.pt")
+model = YOLO("modelo_final.pt")
 
 
 def send_signal(signal: str):

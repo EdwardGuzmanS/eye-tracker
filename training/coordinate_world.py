@@ -3,7 +3,7 @@ import cv2
 from common.cameras import WorldCamera
 
 def run_coordinate_world(shared_coords):
-    world_camera = WorldCamera(0)
+    world_camera = WorldCamera()
     world_camera.activar_click_detection()
     while True:
         ret, frame = world_camera.cap.read()
