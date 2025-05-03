@@ -18,8 +18,11 @@ def train_model():
     # 1. Capturar la escena
     print("Ejecutando coordinate_world...")
     world_proc = multiprocessing.Process(target=run_coordinate_world, args=(shared_coords,))
+    screen_calib = multiprocessing.Process(target=run_calibration, args=(pupil_queue, shared_calibration_data))
     world_proc.start()
+    screen_calib.start()
     world_proc.join()
+    screen_calib.join()
     print("Captura del entorno finalizada.")
     print("Coordenadas del mundo:", list(shared_coords))
     
