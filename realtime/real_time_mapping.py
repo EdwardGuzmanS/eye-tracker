@@ -98,11 +98,11 @@ def real_time_mapping(shared_pupil_data):
                     cv2.putText(frame, texto, (50, 50),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
                     mapping = {
-                        'heater': '0',
-                        'lamp': '1',
-                        'television': '2',
-                        'mechanical fan' : '3',
-                        'speaker' : '4'
+                        'Heater': '0',
+                        'Lamp': '1',
+                        'Television': '2',
+                        'Mechanical fan' : '3',
+                        'Speaker' : '4'
                     }
                     signal = mapping.get(objeto_actual['name'], '0')
                     send_signal(signal)
